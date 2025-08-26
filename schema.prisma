@@ -1,0 +1,98 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model ContentStrategy {
+    id              String    @id @default(uuid())
+    name            String
+    description     String
+    keywords        Keyword[]
+    pillars         Int
+    silosPerPillar  Int
+    subSilosPerSilo Int
+    pillarsPosted   Int
+    silosPosted     Int
+    subSilosPosted  Int
+    nextPost        DateTime?
+    lastPost        DateTime?
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
+    Article         Article[]
+}
+
+model Keyword {
+    id                String              @id @default(uuid())
+    keyword           String
+    url               String
+    priority          Int
+    supply            Int
+    demand            Int
+    competitionLevel  Int
+    competitors       KeywordCompetitor[]
+    contentStrategy   ContentStrategy?    @relation(fields: [contentStrategyId], references: [id])
+    contentStrategyId String?
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+
+    @@unique([keyword, contentStrategyId])
+}
+
+model KeywordCompetitor {
+    id                       String   @id @default(uuid())
+    keyword                  Keyword  @relation(fields: [keywordId], references: [id])
+    keywordId                String
+    competitorName           String
+    competitorUrl            String
+    rank                     Int
+    domainAuthority          Int
+    pageAuthority            Int
+    domainRating             Int
+    pageRating               Int
+    domainTrust              Int
+    pageTrust                Int
+    wordCount                Int
+    wordDensity              Int
+    wordCountPerParagraph    Int
+    wordCountPerSentence     Int
+    keywordDensity           Int
+    keywordCount             Int
+    keywordCountPerParagraph Int
+    keywordCountPerSentence  Int
+    createdAt                DateTime @default(now())
+    updatedAt                DateTime @updatedAt
+}
+
+model Article {
+    id                String           @id @default(uuid())
+    contentStrategy   ContentStrategy? @relation(fields: [contentStrategyId], references: [id])
+    contentStrategyId String?
+    topic             String
+    type              TopicType
+    metaTitle         String
+    metaDescription   String
+    status            ArticleStatus
+    keywords          String[]
+    content           String
+    createdAt         DateTime         @default(now())
+    updatedAt         DateTime         @updatedAt
+    publishedAt       DateTime?
+    scheduledAt       DateTime?
+}
+
+enum TopicType {
+    PILLAR
+    SILO
+    SUB_SILO
+}
+
+enum ArticleStatus {
+    QUEUED
+    DRAFT
+    PUBLISHED
+    SCHEDULED
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid Flowchart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+        }
+        .chart-title {
+            font-size: 1.5em;
+            color: #495057;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .description {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Mermaid Flowchart Examples</h1>
+        
+        <div class="description">
+            <strong>Welcome!</strong> This page demonstrates various Mermaid flowcharts running in a Docker container. 
+            These examples show different types of workflows and processes you can visualize with Mermaid.
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">📊 Software Development Workflow</div>
+            <div class="mermaid">
+                flowchart TD
+                    A[Start Development] --> B{Code Review Required?}
+                    B -->|Yes| C[Create Pull Request]
+                    B -->|No| D[Direct Commit]
+                    C --> E[Peer Review]
+                    E --> F{Review Approved?}
+                    F -->|Yes| G[Merge to Main]
+                    F -->|No| H[Request Changes]
+                    H --> I[Fix Issues]
+                    I --> E
+                    D --> G
+                    G --> J[Run CI/CD Pipeline]
+                    J --> K{Tests Pass?}
+                    K -->|Yes| L[Deploy to Staging]
+                    K -->|No| M[Fix Failing Tests]
+                    M --> J
+                    L --> N[Manual Testing]
+                    N --> O{QA Approved?}
+                    O -->|Yes| P[Deploy to Production]
+                    O -->|No| Q[Bug Fixes]
+                    Q --> L
+                    P --> R[Monitor & Maintain]
+                    
+                    style A fill:#e1f5fe
+                    style P fill:#c8e6c9
+                    style R fill:#fff3e0
+                    style M fill:#ffcdd2
+                    style Q fill:#ffcdd2
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">🏢 Customer Order Processing</div>
+            <div class="mermaid">
+                flowchart LR
+                    A[Customer Places Order] --> B[Validate Order]
+                    B --> C{Stock Available?}
+                    C -->|Yes| D[Process Payment]
+                    C -->|No| E[Backorder Item]
+                    D --> F{Payment Success?}
+                    F -->|Yes| G[Generate Invoice]
+                    F -->|No| H[Payment Failed]
+                    H --> I[Notify Customer]
+                    G --> J[Pick Items]
+                    J --> K[Package Order]
+                    K --> L[Ship Order]
+                    L --> M[Send Tracking Info]
+                    E --> N[Notify Customer of Delay]
+                    N --> O[Restock Item]
+                    O --> C
+                    
+                    style A fill:#e8f5e8
+                    style G fill:#fff2cc
+                    style L fill:#d4edda
+                    style H fill:#f8d7da
+                    style I fill:#f8d7da
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">🔄 CI/CD Pipeline</div>
+            <div class="mermaid">
+                flowchart TD
+                    A[Developer Push] --> B[Webhook Trigger]
+                    B --> C[Clone Repository]
+                    C --> D[Install Dependencies]
+                    D --> E[Run Linting]
+                    E --> F{Linting Pass?}
+                    F -->|No| G[Report Lint Errors]
+                    F -->|Yes| H[Run Unit Tests]
+                    H --> I{Tests Pass?}
+                    I -->|No| J[Report Test Failures]
+                    I -->|Yes| K[Build Application]
+                    K --> L[Run Integration Tests]
+                    L --> M{Integration Tests Pass?}
+                    M -->|No| N[Report Integration Failures]
+                    M -->|Yes| O[Build Docker Image]
+                    O --> P[Push to Registry]
+                    P --> Q[Deploy to Staging]
+                    Q --> R[Run E2E Tests]
+                    R --> S{E2E Tests Pass?}
+                    S -->|No| T[Rollback Deployment]
+                    S -->|Yes| U[Deploy to Production]
+                    U --> V[Health Check]
+                    V --> W[Notify Team]
+                    
+                    G --> X[End - Fix Required]
+                    J --> X
+                    N --> X
+                    T --> X
+                    
+                    style A fill:#e3f2fd
+                    style U fill:#e8f5e8
+                    style W fill:#fff3e0
+                    style X fill:#ffebee
+            </div>
+        </div>
+
+        <div class="footer">
+            Running in Docker 🐳 | Powered by Mermaid.js
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
