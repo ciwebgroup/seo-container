@@ -8,14 +8,14 @@ The modern replacement for "SEO in a Box" including:
 - Prompt Version Control
 - Context Window Compression via MermaidJS
 
-This is more than "SEO in a Box" replacement, but an Agentic Network Generator able to translate stupid user prompts that don't know what to ask for, into brilliant flawless prompts that generate working 
+This is more than "SEO in a Box" replacement, but an Agentic Network Generator able to translate stupid user prompts that don't know what to ask for, into brilliant flawless prompts that generate working workflows.
 
 
 ## Candid (Hidden) Comedy Explained
 
 While it reduces the level of humor for those who inately understand, I'm willing to sacrifice this joy in the face of utilitarianism (especially if I'm the only one chuckling).
 
-Containerization (e.g. Docker and Kuberneties) is a modern strategy to replace the old school "Linux Box" (monolithic server stack), creating a both the ironic parallel double entrende
+Containerization (e.g. Docker and Kuberneties) is a modern strategy to replace the old school "Linux Box" (monolithic server stack), creating a both the ironic parallel and a double entrende.
 
 
 ## How it works
