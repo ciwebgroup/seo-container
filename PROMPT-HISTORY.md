@@ -154,3 +154,19 @@ If convertting the entirety of the system prompt to a "Model Spec" in JSON forma
 
 I am not sure what would work the best, I am just tyring to add as much context and suggestion from other AI as possible.
 ```
+
+Worked very well.
+
+
+12. I've decided I want this to be a UI for creating N8N Workflows which will require
+- MermaidJS/N8N Annotation Hybrid
+- Model Spec -as- System Prompt - In JSON format
+- Seperation of **Workflow** System Prompt from **Applied** System Prompt
+
+My thought is, I would like to create a single system prompt by combining the workflow system prompt with the applied system prompt.  Another strategy would be to have 2 system prompts in succession rather than combining 2 standards (will test to see which approach provides better overall output) 
+
+
+13. Prompted:
+```
+I want to maintain a separation of concers pertaining to the agent's model spec.  I would like SYSTEM.md to be 100% pertaining to workflows and N8N.  Please create SYSTEM-SEO.md in the exact same JSON and document format.  Extracting anything to do with SEO to WORKFLOW-SEO.md
+```
