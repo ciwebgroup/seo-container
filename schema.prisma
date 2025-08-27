@@ -7,92 +7,500 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// Content Strategy and Planning Models
 model ContentStrategy {
-    id              String    @id @default(uuid())
-    name            String
-    description     String
-    keywords        Keyword[]
-    pillars         Int
-    silosPerPillar  Int
-    subSilosPerSilo Int
-    pillarsPosted   Int
-    silosPosted     Int
-    subSilosPosted  Int
-    nextPost        DateTime?
-    lastPost        DateTime?
-    createdAt       DateTime  @default(now())
-    updatedAt       DateTime  @updatedAt
-    Article         Article[]
+    id                    String                @id @default(uuid())
+    name                  String
+    description           String?
+    industry              String
+    targetLocation        String
+    serviceOffering       String
+    
+    // Content Architecture
+    pillarsCount          Int                   @default(5)
+    silosPerPillar        Int                   @default(5)
+    subSilosPerSilo       Int                   @default(5)
+    totalArticlesRequired Int                   @default(125)
+    
+    // Publishing Strategy
+    publishingFrequency   PublishingFrequency   @default(WEEKLY)
+    pillarToSiloRatio     String                @default("1:5")
+    siloToSubSiloRatio    String                @default("1:5")
+    rotationPattern       String[]              @default(["PILLAR", "SILO", "SILO", "SILO", "SUB_SILO", "SUB_SILO"])
+    
+    // Progress Tracking
+    pillarsPublished      Int                   @default(0)
+    silosPublished        Int                   @default(0)
+    subSilosPublished     Int                   @default(0)
+    
+    // Timestamps
+    createdAt             DateTime              @default(now())
+    updatedAt             DateTime              @updatedAt
+    lastPublished         DateTime?
+    nextScheduled         DateTime?
+    
+    // Relationships
+    keywords              Keyword[]
+    articles              Article[]
+    businessProfile       BusinessProfile?
+    brandProfile          BrandProfile?
+    audienceProfiles      AudienceProfile[]
+    competitorAnalyses    CompetitorAnalysis[]
 }
 
+// Keyword Research and Analysis
 model Keyword {
-    id                String              @id @default(uuid())
-    keyword           String
-    url               String
-    priority          Int
-    supply            Int
-    demand            Int
-    competitionLevel  Int
-    competitors       KeywordCompetitor[]
-    contentStrategy   ContentStrategy?    @relation(fields: [contentStrategyId], references: [id])
-    contentStrategyId String?
-    createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @updatedAt
-
+    id                    String                @id @default(uuid())
+    keyword               String
+    searchVolume          Int                   @default(0)
+    difficulty            Int                   @default(0) // 0-100 scale
+    intent                SearchIntent          @default(INFORMATIONAL)
+    competitorCount       Int                   @default(0)
+    averageWordCount      Int                   @default(0)
+    topRankingFeatures    String[]              @default([])
+    
+    // Location and Service Context
+    serviceOffering       String
+    targetLocation        String
+    
+    // SEO Metrics
+    cpc                   Float?                // Cost per click
+    competitionLevel      CompetitionLevel      @default(MEDIUM)
+    seasonalTrends        Json?                 // Monthly search volume data
+    
+    // Content Strategy Association
+    contentStrategy       ContentStrategy?      @relation(fields: [contentStrategyId], references: [id])
+    contentStrategyId     String?
+    
+    // Relationships
+    competitors           KeywordCompetitor[]
+    articles              Article[]
+    
+    createdAt             DateTime              @default(now())
+    updatedAt             DateTime              @updatedAt
+    
     @@unique([keyword, contentStrategyId])
 }
 
+// Competitor Analysis for Keywords
 model KeywordCompetitor {
     id                       String   @id @default(uuid())
-    keyword                  Keyword  @relation(fields: [keywordId], references: [id])
+    keyword                  Keyword  @relation(fields: [keywordId], references: [id], onDelete: Cascade)
     keywordId                String
+    
+    // Competitor Information
     competitorName           String
     competitorUrl            String
-    rank                     Int
-    domainAuthority          Int
-    pageAuthority            Int
-    domainRating             Int
-    pageRating               Int
-    domainTrust              Int
-    pageTrust                Int
-    wordCount                Int
-    wordDensity              Int
-    wordCountPerParagraph    Int
-    wordCountPerSentence     Int
-    keywordDensity           Int
-    keywordCount             Int
-    keywordCountPerParagraph Int
-    keywordCountPerSentence  Int
+    competitorDomain         String
+    rank                     Int      // SERP position
+    
+    // Authority Metrics
+    domainAuthority          Int      @default(0)
+    pageAuthority            Int      @default(0)
+    domainRating             Int      @default(0)
+    pageRating               Int      @default(0)
+    domainTrust              Int      @default(0)
+    pageTrust                Int      @default(0)
+    
+    // Content Analysis
+    wordCount                Int      @default(0)
+    wordDensity              Float    @default(0)
+    wordCountPerParagraph    Int      @default(0)
+    wordCountPerSentence     Int      @default(0)
+    keywordDensity           Float    @default(0)
+    keywordCount             Int      @default(0)
+    keywordCountPerParagraph Int      @default(0)
+    keywordCountPerSentence  Int      @default(0)
+    
+    // Technical SEO Factors
+    pageLoadSpeed            Float?   // Core Web Vitals LCP
+    mobileOptimized          Boolean  @default(false)
+    structuredData           Boolean  @default(false)
+    httpsEnabled             Boolean  @default(true)
+    
+    // Content Quality Indicators
+    readabilityScore         Float?
+    entityCount              Int      @default(0)
+    internalLinks            Int      @default(0)
+    externalLinks            Int      @default(0)
+    imageCount               Int      @default(0)
+    videoCount               Int      @default(0)
+    
     createdAt                DateTime @default(now())
     updatedAt                DateTime @updatedAt
+    
+    @@unique([keywordId, competitorUrl])
 }
 
+// Business Profile and Context
+model BusinessProfile {
+    id                    String           @id @default(uuid())
+    contentStrategy       ContentStrategy  @relation(fields: [contentStrategyId], references: [id], onDelete: Cascade)
+    contentStrategyId     String           @unique
+    
+    // Company Information
+    companyName           String
+    industry              String
+    serviceAreas          String[]         @default([])
+    uniqueValueProps      String[]         @default([])
+    targetMarkets         String[]         @default([])
+    
+    // Expertise and Authority
+    coreServices          String[]         @default([])
+    specializations       String[]         @default([])
+    certifications        String[]         @default([])
+    yearsInBusiness       Int              @default(0)
+    teamSize              Int              @default(0)
+    
+    // Competitive Positioning
+    differentiators       String[]         @default([])
+    marketPosition        String
+    pricingStrategy       String
+    serviceQuality        String
+    
+    // Contact and Location
+    primaryLocation       String
+    serviceRadius         Int?             // Miles/KM radius
+    contactInfo           Json?            // Phone, email, etc.
+    
+    createdAt             DateTime         @default(now())
+    updatedAt             DateTime         @updatedAt
+}
+
+// Brand Voice and Messaging
+model BrandProfile {
+    id                    String           @id @default(uuid())
+    contentStrategy       ContentStrategy  @relation(fields: [contentStrategyId], references: [id], onDelete: Cascade)
+    contentStrategyId     String           @unique
+    
+    // Voice and Personality
+    personality           String[]         @default([])
+    tone                  BrandTone        @default(PROFESSIONAL)
+    style                 BrandStyle       @default(ACCESSIBLE)
+    
+    // Messaging Framework
+    coreMessages          String[]         @default([])
+    valuePropositions     String[]         @default([])
+    taglines              String[]         @default([])
+    
+    // Content Preferences
+    preferredFormats      String[]         @default([])
+    contentPillars        String[]         @default([])
+    avoidedTopics         String[]         @default([])
+    
+    // Communication Guidelines
+    vocabularyLevel       String           @default("Professional")
+    technicalDepth        String           @default("Moderate")
+    emotionalTone         String           @default("Confident")
+    
+    createdAt             DateTime         @default(now())
+    updatedAt             DateTime         @updatedAt
+}
+
+// Audience Intelligence and Personas
+model AudienceProfile {
+    id                    String           @id @default(uuid())
+    contentStrategy       ContentStrategy  @relation(fields: [contentStrategyId], references: [id], onDelete: Cascade)
+    contentStrategyId     String
+    
+    // Profile Identification
+    personaName           String
+    personaType           AudienceType     @default(PRIMARY)
+    
+    // Demographics
+    ageRange              String
+    incomeRange           String
+    educationLevel        String
+    location              String
+    jobTitles             String[]         @default([])
+    
+    // Psychographics
+    interests             String[]         @default([])
+    painPoints            String[]         @default([])
+    goals                 String[]         @default([])
+    preferredChannels     String[]         @default([])
+    
+    // Behavioral Patterns
+    searchPatterns        String[]         @default([])
+    contentPreferences    String[]         @default([])
+    decisionFactors       String[]         @default([])
+    buyingJourney         String[]         @default([])
+    
+    // Engagement Metrics
+    avgSessionDuration    Int?             // Seconds
+    bounceRate            Float?           // Percentage
+    conversionRate        Float?           // Percentage
+    preferredContentLength Int?           // Words
+    
+    createdAt             DateTime         @default(now())
+    updatedAt             DateTime         @updatedAt
+    
+    @@unique([contentStrategyId, personaName])
+}
+
+// Competitive Intelligence
+model CompetitorAnalysis {
+    id                    String           @id @default(uuid())
+    contentStrategy       ContentStrategy  @relation(fields: [contentStrategyId], references: [id], onDelete: Cascade)
+    contentStrategyId     String
+    
+    // Competitor Information
+    competitorName        String
+    competitorDomain      String
+    competitorUrl         String
+    
+    // Authority and Trust Metrics
+    domainAuthority       Int              @default(0)
+    domainRating          Int              @default(0)
+    trustFlow             Int              @default(0)
+    citationFlow          Int              @default(0)
+    
+    // Content Strategy Analysis
+    contentVolume         Int              @default(0) // Total indexed pages
+    publishingFrequency   Int              @default(0) // Posts per month
+    averageWordCount      Int              @default(0)
+    topicCoverage         String[]         @default([])
+    contentGaps           String[]         @default([])
+    
+    // Technical SEO Analysis
+    coreWebVitalsScore    Float?
+    mobileOptimization    Float?           // Score 0-100
+    structuredDataUsage   Float?           // Percentage of pages
+    internalLinkingScore  Float?
+    
+    // Social and Engagement Metrics
+    socialFollowing       Json?            // Platform-specific follower counts
+    avgSocialEngagement   Float?
+    brandMentions         Int              @default(0)
+    
+    createdAt             DateTime         @default(now())
+    updatedAt             DateTime         @updatedAt
+    
+    @@unique([contentStrategyId, competitorDomain])
+}
+
+// Content and Article Management
 model Article {
-    id                String           @id @default(uuid())
-    contentStrategy   ContentStrategy? @relation(fields: [contentStrategyId], references: [id])
-    contentStrategyId String?
-    topic             String
-    type              TopicType
-    metaTitle         String
-    metaDescription   String
-    status            ArticleStatus
-    keywords          String[]
-    content           String
-    createdAt         DateTime         @default(now())
-    updatedAt         DateTime         @updatedAt
-    publishedAt       DateTime?
-    scheduledAt       DateTime?
+    id                    String           @id @default(uuid())
+    contentStrategy       ContentStrategy? @relation(fields: [contentStrategyId], references: [id])
+    contentStrategyId     String?
+    
+    // Content Classification
+    topic                 String
+    contentType           ContentType      @default(SILO)
+    pillarTopic           String?          // Parent pillar for silo/sub-silo content
+    
+    // Target Keywords
+    primaryKeyword        String
+    secondaryKeywords     String[]         @default([])
+    targetKeywords        Keyword[]
+    
+    // SEO Metadata
+    metaTitle             String
+    metaDescription       String
+    slug                  String           @unique
+    canonicalUrl          String?
+    
+    // Content Structure
+    outline               Json?            // Structured content outline
+    content               String           // Full article content
+    wordCount             Int              @default(0)
+    readabilityScore      Float?
+    
+    // SEO Optimization
+    titleTag              String
+    openGraphTags         Json?            // OG tags for social sharing
+    structuredData        Json?            // JSON-LD markup
+    internalLinks         String[]         @default([])
+    externalLinks         String[]         @default([])
+    
+    // Publishing and Status
+    status                ArticleStatus    @default(DRAFT)
+    publishedUrl          String?
+    publishedAt           DateTime?
+    scheduledAt           DateTime?
+    
+    // Performance Tracking
+    viewCount             Int              @default(0)
+    avgTimeOnPage         Int?             // Seconds
+    bounceRate            Float?           // Percentage
+    conversionRate        Float?           // Percentage
+    organicTraffic        Int              @default(0)
+    currentRanking        Int?             // SERP position
+    
+    // AI and Quality Metrics
+    topicalAuthorityScore Float?           // 0-100 score
+    entityDensity         Float?           // Entities per 1000 words
+    semanticRichness      Float?           // Topic coverage breadth
+    competitiveAdvantage  Float?           // Unique value vs competitors
+    
+    createdAt             DateTime         @default(now())
+    updatedAt             DateTime         @updatedAt
+    
+    @@index([contentStrategyId, contentType])
+    @@index([primaryKeyword])
+    @@index([status, scheduledAt])
 }
 
-enum TopicType {
+// Workflow Execution and Monitoring
+model WorkflowExecution {
+    id                    String                @id @default(uuid())
+    workflowName          String
+    workflowType          WorkflowType
+    
+    // Execution Context
+    invocationId          String                @unique
+    triggeredBy           String                // User, schedule, webhook, etc.
+    executionSource       ExecutionSource       @default(MANUAL)
+    
+    // Input and Output Data
+    inputData             Json
+    outputData            Json?
+    errorData             Json?
+    
+    // Performance Metrics
+    startTime             DateTime              @default(now())
+    endTime               DateTime?
+    executionTime         Int?                  // Milliseconds
+    nodesExecuted         Int                   @default(0)
+    apiCallsCount         Int                   @default(0)
+    dataProcessed         Int                   @default(0) // Records processed
+    
+    // Status and Results
+    status                ExecutionStatus       @default(RUNNING)
+    successRate           Float?                // Percentage of successful operations
+    errorCount            Int                   @default(0)
+    warningCount          Int                   @default(0)
+    
+    // Resource Usage
+    memoryUsage           Float?                // MB
+    cpuUsage              Float?                // Percentage
+    networkUsage          Float?                // MB transferred
+    
+    createdAt             DateTime              @default(now())
+    updatedAt             DateTime              @updatedAt
+    
+    @@index([workflowName, status])
+    @@index([startTime])
+}
+
+// Performance Monitoring and Analytics
+model PerformanceMetric {
+    id                    String           @id @default(uuid())
+    
+    // Metric Identification
+    metricType            MetricType
+    entityType            String           // Article, Keyword, Strategy, etc.
+    entityId              String           // ID of the entity being measured
+    
+    // Metric Data
+    metricName            String
+    metricValue           Float
+    metricUnit            String?          // Views, seconds, percentage, etc.
+    
+    // Context and Dimensions
+    timeframe             String           // Daily, weekly, monthly
+    source                String           // Google Analytics, Search Console, etc.
+    dimensions            Json?            // Additional context data
+    
+    // Timestamps
+    measurementDate       DateTime
+    createdAt             DateTime         @default(now())
+    
+    @@unique([entityType, entityId, metricName, measurementDate])
+    @@index([metricType, measurementDate])
+}
+
+// Enums
+enum PublishingFrequency {
+    DAILY
+    WEEKLY
+    BI_WEEKLY
+    MONTHLY
+}
+
+enum SearchIntent {
+    INFORMATIONAL
+    COMMERCIAL
+    TRANSACTIONAL
+    NAVIGATIONAL
+}
+
+enum CompetitionLevel {
+    LOW
+    MEDIUM
+    HIGH
+    VERY_HIGH
+}
+
+enum ContentType {
     PILLAR
     SILO
     SUB_SILO
 }
 
 enum ArticleStatus {
-    QUEUED
     DRAFT
-    PUBLISHED
+    REVIEW
     SCHEDULED
+    PUBLISHED
+    ARCHIVED
+}
+
+enum BrandTone {
+    PROFESSIONAL
+    FRIENDLY
+    AUTHORITATIVE
+    CONVERSATIONAL
+    TECHNICAL
+}
+
+enum BrandStyle {
+    FORMAL
+    CASUAL
+    TECHNICAL
+    ACCESSIBLE
+    CREATIVE
+}
+
+enum AudienceType {
+    PRIMARY
+    SECONDARY
+    TERTIARY
+}
+
+enum WorkflowType {
+    PRIMARY_CONTENT_PIPELINE
+    SEO_STRATEGY_GENERATOR
+    BUSINESS_PROFILE_GENERATOR
+    BRAND_VOICE_ANALYZER
+    AUDIENCE_INTELLIGENCE_GENERATOR
+    CONTENT_CLUSTER_PLANNER
+    COMPETITIVE_INTELLIGENCE_ANALYZER
+}
+
+enum ExecutionSource {
+    MANUAL
+    SCHEDULED
+    WEBHOOK
+    CALLBACK
+    API
+}
+
+enum ExecutionStatus {
+    PENDING
+    RUNNING
+    SUCCESS
+    PARTIAL_SUCCESS
+    FAILED
+    CANCELLED
+}
+
+enum MetricType {
+    SEO_PERFORMANCE
+    CONTENT_QUALITY
+    USER_ENGAGEMENT
+    CONVERSION
+    TECHNICAL_PERFORMANCE
+    COMPETITIVE_ANALYSIS
 }
